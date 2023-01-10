@@ -1,0 +1,40 @@
+-- Give Illness : game.Players.LocalPlayer:GiveIllness("cold")
+-- Cure Illness : game.Players.LocalPlayer:CureIllness("cold")
+local illnesses = {
+	["cold"] = {
+		["symptoms"] = "sneezing, coughing, runny nose",
+		["duration"] = 5
+	},
+	["flu"] = {
+		["symptoms"] = "fever, body aches, fatigue",
+		["duration"] = 7
+	},
+	["pneumonia"] = {
+		["symptoms"] = "cough, shortness of breath, chest pain",
+		["duration"] = 10
+	}
+}
+
+-- create a function to give a player an illness
+function GiveIllness(player, illnessType)
+	-- check if the illness type is valid
+	local illness = illnesses[illnessType]
+	if illness then
+		-- give the player the chosen illness
+		player.Illness.Value = illnessType
+		player.IllnessDuration.Value = illness.duration
+
+		print(player.Name .. " has been infected with " .. illnessType .. " for " .. illness.duration .. " days.")
+	else
+		print("Invalid illness type")
+	end
+end
+
+-- create a function to cure a player's illness
+function CureIllness(player)
+	player.Illness.Value = "healthy"
+	player.IllnessDuration.Value = 0
+
+	print(player.Name .. " has been cured of their illness.")
+end
+
