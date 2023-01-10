@@ -1,0 +1,60 @@
+local dayLength = 12 -- defines how long, in minutes, a day in your game is. Feel free to alter it.
+local cycleTime = dayLength*60
+local minutesInADay = 24*60
+
+local lighting = game:GetService("Lighting")
+
+local startTime = tick() - (lighting:getMinutesAfterMidnight() / minutesInADay)*cycleTime
+local endTime = startTime + cycleTime
+
+local timeRatio = minutesInADay / cycleTime
+
+if dayLength == 0 then
+	dayLength = 1
+end
+
+local currentState = "day"
+
+local function setTime(time)
+	lighting:setMinutesAfterMidnight(time)
+end
+
+local function changeTime(admin, message)
+	if message == "!day" then
+		-- set time to 6:00 AM
+		setTime(360)
+		currentState = "day"
+	elseif message == "!night" then
+		-- set time to 6:00 PM
+		setTime(2000)
+		currentState = "night"
+	end
+end
+
+game.Players.PlayerAdded:Connect(function(player)
+	player.Chatted:Connect(function(message)
+		local admins = {"FURANscott", "admin2", "admin3"} -- list of admin names
+		if table.find(admins, player.Name) then
+			changeTime(player, message)
+		end
+	end)
+end)
+
+repeat
+	local currentTime = tick()
+
+	if currentTime > endTime then
+		startTime = endTime
+		endTime = startTime + cycleTime
+	end
+
+	if currentState == "day" then
+		lighting:setMinutesAfterMidnight((currentTime - startTime)*timeRatio)
+	elseif currentState == "night" then
+		lighting:setMinutesAfterMidnight((currentTime - startTime)*timeRatio + 360)
+	end
+
+	wait(1/15)
+until false
+
+
