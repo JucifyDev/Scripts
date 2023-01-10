@@ -1,0 +1,377 @@
+-- Set up ranks
+local Ranks = {
+	Owner = 1,
+	MainAdministrator = 2,
+	Administrator = 3,
+	King = 4,
+	Prince = 5,
+	Hero = 6,
+	Blessed = 7,
+}
+
+
+-- Set up currencies
+local Currencies = {
+	Copper = 1,
+	Silver = 2,
+	Gold = 3,
+}
+
+-- Set up command prefix
+local CommandPrefix = "!"
+
+-- Set up admin commands
+local AdminCommands = {
+	Fly = CommandPrefix .. "fly",
+	Speed = CommandPrefix .. "speed",
+	Level = CommandPrefix .. "level",
+	Coins = CommandPrefix .. "coins",
+	Admin = CommandPrefix .. "admin",
+	Rank = CommandPrefix .. "rank",
+	Advocate = CommandPrefix .. "advocate",
+	Bestow = CommandPrefix .. "bestow",
+}
+
+-- Set up function to get player object from name
+local function GetPlayerFromName(name)
+	-- Find player object with the given name
+	for _, player in pairs(game.Players:GetPlayers()) do
+		if player.Name:lower() == name:lower() then
+			return player
+		end
+	end
+
+	-- Return nil if player object is not found
+	return nil
+end
+
+-- Set up function to check if player has the required rank to use a command
+local function HasRequiredRank(player, requiredRank)
+	-- Get player's rank
+	local playerRank = player.leaderstats.Rank.Value
+
+	-- Convert player's rank to a number
+	playerRank = tonumber(playerRank)
+
+	-- Check if player's rank is equal to or higher than the required rank
+	return playerRank <= requiredRank
+end
+
+
+-- Set up function to handle fly command
+local function OnFlyCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.Administrator) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Toggle fly mode for the player
+	player.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Flying)
+end
+
+-- Set up function to handle speed command
+local function OnSpeedCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.Administrator) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Extract speed value from message
+	local speed = tonumber(string.match(message, "%d+"))
+
+	-- Check if speed value is valid
+	if not speed then
+		player:SendMessage("Invalid speed value.")
+		return
+	end
+
+	-- Set player's walk speed to the specified value
+	player.Character.Humanoid.WalkSpeed = speed
+end
+
+-- Set up function to handle level command
+local function OnLevelCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.Administrator) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Extract level value from message
+	local level = tonumber(string.match(message, "%d+"))
+
+	-- Check if level value is valid
+	if not level then
+		player:SendMessage("Invalid level value.")
+		return
+	end
+
+	-- Set player's level to the specified value
+	player.leaderstats.Level.Value = level
+end
+
+-- Set up function to handle coins command
+local function OnCoinsCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.Administrator) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Extract currency and amount values from message
+	local currency, amount = string.match(message, "(%a+) (%d+)")
+
+	-- Check if currency and amount values are valid
+	if not currency or not amount then
+		player:SendMessage("Invalid currency or amount.")
+		return
+	end
+
+	-- Convert currency value to lowercase
+	currency = currency:lower()
+
+	-- Check if currency is a valid value
+	if not Currencies[currency] then
+		player:SendMessage("Invalid currency.")
+		return
+	end
+
+	-- Set player's specified currency to the specified amount
+	player.leaderstats[Currencies[currency]].Value = amount
+end
+
+-- Set up function to handle admin command
+local function OnAdminCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.MainAdministrator) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Extract action, rank, and name values from message
+	local action, rank, name = string.match(message, "(%a+) (%a+) (.-)")
+
+	-- Check if action, rank, and name values are valid
+	if not action or not rank or not name then
+		player:SendMessage("Invalid action, rank, or name.")
+		return
+	end
+
+	-- Convert action and rank values to lowercase
+	action = action:lower()
+	rank = rank:lower()
+
+	-- Check if action is "add" or "remove"
+	if action ~= "add" and action ~= "remove" then
+		player:SendMessage("Invalid action. Must be either 'add' or 'remove'.")
+		return
+	end
+
+	-- Check if rank is a valid value
+	if not Ranks[rank] then
+		player:SendMessage("Invalid rank.")
+		return
+	end
+
+	-- Get player object from name
+	local targetPlayer = GetPlayerFromName(name)
+
+	-- Check if player object is valid
+	if not targetPlayer then
+		player:SendMessage("Player not found.")
+		return
+	end
+
+	-- Check if action is "add"
+	if action == "add" then
+		-- Set player's rank to the specified value
+		targetPlayer.leaderstats.Rank.Value = Ranks[rank]
+	elseif action == "remove" then
+		-- Set player's rank to the default value
+		targetPlayer.leaderstats.Rank.Value = Ranks.Blessed
+	end
+end
+
+-- Set up function to handle rank command
+local function OnRankCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.Prince) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Extract rank and name values from message
+	local rank, name = string.match(message, "(%a+) (.-)")
+
+	-- Check if rank and name values are valid
+	if not rank or not name then
+		player:SendMessage("Invalid rank or name.")
+		return
+	end
+
+	-- Convert rank value to lowercase
+	rank = rank:lower()
+
+	-- Check if rank is a valid value
+	if not Ranks[rank] then
+		player:SendMessage("Invalid rank.")
+		return
+	end
+
+	-- Get player object from name
+	local targetPlayer = GetPlayerFromName(name)
+
+	-- Check if player object is valid
+	if not targetPlayer then
+		player:SendMessage("Player not found.")
+		return
+	end
+
+	-- Set player's rank to the specified value
+	targetPlayer.leaderstats.Rank.Value = Ranks[rank]
+end
+
+-- Set up function to handle advocate command
+local function OnAdvocateCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.Prince) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Add code here
+end
+
+-- Set up function to handle bestow command
+local function OnBestowCommand(player, message)
+	-- Check if player has the required rank to use this command
+	if not HasRequiredRank(player, Ranks.Prince) then
+		player:SendMessage("You do not have permission to use this command.")
+		return
+	end
+
+	-- Extract item and name values from message
+	local item, name = string.match(message, "(%a+) (.-)")
+
+	-- Check if item and name values are valid
+	if not item or not name then
+		player:SendMessage("Invalid item or name.")
+		return
+	end
+
+	-- Convert item value to lowercase
+	item = item:lower()
+
+	-- Get item object from server storage
+	local itemObject = game.ServerStorage.Items[item]
+
+	-- Check if item object is valid
+	if not itemObject then
+		player:SendMessage("Item not found.")
+		return
+	end
+
+	-- Get player object from name
+	local targetPlayer = GetPlayerFromName(name)
+
+	-- Check if player object is valid
+	if not targetPlayer then
+		player:SendMessage("Player not found.")
+		return
+	end
+
+	-- Give player the specified item
+	targetPlayer:GiveItem(itemObject)
+end
+
+game.Players.PlayerChatted:Connect(function(player, message)
+	-- Check if message starts with the command prefix
+	if string.sub(message, 1, string.len(CommandPrefix)) == CommandPrefix then
+		-- Extract command and arguments from message
+		local command, args = string.match(message, "(%S+) (.*)")
+		command = command:sub(#CommandPrefix + 1)
+
+		-- Check which command was used and call the appropriate function
+		if command == "fly" then
+			OnFlyCommand(player, args)
+		elseif command == "speed" then
+			OnSpeedCommand(player, args)
+		elseif command == "level" then
+			OnLevelCommand(player, args)
+		elseif command == "coins" then
+			OnCoinsCommand(player, args)
+		elseif command == "admin" then
+			OnAdminCommand(player, args)
+		elseif command == "rank" then
+			OnRankCommand(player, args)
+		elseif command == "advocate" then
+			OnAdvocateCommand(player, args)
+		elseif command == "bestow" then
+			OnBestowCommand(player, args)
+		end
+	end
+end)
+
+
+-- Set up function to handle chat messages
+game.Players.PlayerAdded:Connect(function(player)
+	player.Chatted:Connect(function(message)
+		-- Extract command and arguments from message
+		local command, args = string.match(message, "(%S+)%s+(.-)$")
+
+		-- Check if command is a valid value
+		if not command then
+			return
+		end
+
+		-- Convert command to lowercase
+		command = command:lower()
+
+		-- Check if command is a valid admin command
+		if command == AdminCommands.Fly then
+			OnFlyCommand(player, args)
+		elseif command == AdminCommands.Speed then
+			OnSpeedCommand(player, args)
+		elseif command == AdminCommands.Level then
+			OnLevelCommand(player, args)
+		elseif command == AdminCommands.Coins then
+			OnCoinsCommand(player, args)
+		elseif command == AdminCommands.Admin then
+			OnAdminCommand(player, args)
+		elseif command == AdminCommands.Rank then
+			OnRankCommand(player, args)
+		elseif command == AdminCommands.Advocate then
+			OnAdvocateCommand(player, args)
+		elseif command == AdminCommands.Bestow then
+			OnBestowCommand(player, args)
+		end
+		game.Players.PlayerChatted:Connect(function(player, message)
+			-- Check if message starts with the command prefix
+			if string.sub(message, 1, string.len(CommandPrefix)) == CommandPrefix then
+				-- Extract command and arguments from message
+				local command, args = string.match(message, "(%S+) (.*)")
+				command = command:sub(#CommandPrefix + 1)
+				-- Check which command was used and call the appropriate function
+				if command == "fly" then
+					OnFlyCommand(player, args)
+				elseif command == "speed" then
+					OnSpeedCommand(player, args)
+				elseif command == "level" then
+					OnLevelCommand(player, args)
+				elseif command == "coins" then
+					OnCoinsCommand(player, args)
+				elseif command == "admin" then
+					OnAdminCommand(player, args)
+				elseif command == "rank" then
+					OnRankCommand(player, args)
+				elseif command == "advocate" then
+					OnAdvocateCommand(player, args)
+				elseif command == "bestow" then
+					OnBestowCommand(player, args)
+				end
+			end
+		end)
+	end)
+end)
