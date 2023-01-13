@@ -1,3 +1,4 @@
+-- CREDIT FURANscott --
 local dayLength = 12 -- defines how long, in minutes, a day in your game is. Feel free to alter it.
 local cycleTime = dayLength*60
 local minutesInADay = 24*60
