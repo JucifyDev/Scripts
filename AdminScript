@@ -1,3 +1,4 @@
+-- CREDIT FURANscott --
 -- Set up ranks
 local Ranks = {
 	Owner = 1,
