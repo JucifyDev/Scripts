@@ -1,3 +1,4 @@
+-- CREDIT FURANscott --
 -- Give Illness : game.Players.LocalPlayer:GiveIllness("cold")
 -- Cure Illness : game.Players.LocalPlayer:CureIllness("cold")
 local illnesses = {
